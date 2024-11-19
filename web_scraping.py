@@ -7,7 +7,9 @@ html = requests.get(url)
 soup = BeautifulSoup(html.content, 'html5lib')
 head = soup.find('h1').get_text()
 print(head)
+print()
 text = ""
 for i in range(len(soup.find_all('p'))):
     text += soup.find_all('p')[i].get_text()
 
+print(text)
