@@ -13,5 +13,5 @@ class WebScraper:
         text = ""
         for i in range(len(soup.find_all('p'))):
             text += soup.find_all('p')[i].get_text()
-        
+            
         return head, text
