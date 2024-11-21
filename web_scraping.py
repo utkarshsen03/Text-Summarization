@@ -1,13 +1,17 @@
 from bs4 import BeautifulSoup
 import requests
 
-#url = "https://en.wikipedia.org/wiki/Ferrari"
-url = str(input("Enter URL:"))
-html = requests.get(url)
-soup = BeautifulSoup(html.content, 'html5lib')
-head = soup.find('h1').get_text()
-print(head)
-text = ""
-for i in range(len(soup.find_all('p'))):
-    text += soup.find_all('p')[i].get_text()
+class WebScraper:
+    def __init__(self,url):
+        self.url = url
+        
+    def extract_text(self):
+        html = requests.get(self.url)
+        soup = BeautifulSoup(html.content, 'html5lib')
+        head = soup.find('h1').get_text()
+        text = ""
+        for i in range(len(soup.find_all('p'))):
+            text += soup.find_all('p')[i].get_text()
+            
+        return head, text
 
