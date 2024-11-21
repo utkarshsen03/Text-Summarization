@@ -14,4 +14,3 @@ class WebScraper:
             text += soup.find_all('p')[i].get_text()
             
         return head, text
-
