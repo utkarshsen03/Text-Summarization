@@ -1,7 +1,7 @@
 import re
 import nltk
 
-# Download the punkt tokenizer for sentence splitting
+
 nltk.download('punkt')
 
 # Original text with reference brackets removed
