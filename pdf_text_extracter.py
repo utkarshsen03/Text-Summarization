@@ -12,8 +12,5 @@ class Pdf2Text:
                 text += str(page.get_text().encode("utf8"))
         except Exception as e:
             return ("An error occurred:", e)
-        return text
-
-if __name__ == "__main__":
-    pdf2text = Pdf2Text('offer_letter.pdf')
-    print(type(pdf2text.extract_text()))
+        
+        return str(text)
