@@ -1,11 +1,20 @@
 import re
 import nltk
+from io import StringIO
 import streamlit as st
 from web_scraping import WebScraper
 from spacy_summariser import TextSummarizer
-from streamlit_pdf_viewer import pdf_viewer
 from pdf_text_extracter import Pdf2Text
+from PyPDF2 import PdfReader
+
 nltk.download('punkt_tab')
+
+def extract_text_from_pdf(pdf_file):
+    reader = PdfReader(pdf_file)
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text()
+    return str(text)
 
 def preprocess(summary_text):
     
@@ -46,14 +55,15 @@ if option == "URL":
     
 if option == "PDF":
     pdf = st.file_uploader("Drop File:")
-    if pdf != "":
-        pdf2text = Pdf2Text(pdf)
-        content = pdf2text.extract_text()
-        # st.write(content)
-        summarizer = TextSummarizer(content,phrase,sentence)
-        summary = summarizer.summarize()
-        bullets = preprocess(summary)
-        st.write(summary)
+    if pdf is not None:
+        try:
+            content = extract_text_from_pdf(pdf)
+            summarizer = TextSummarizer(content,phrase,sentence)
+            summary = summarizer.summarize()
+            bullets = preprocess(summary)
+            st.write(summary)
+        except Exception as e:
+            st.write("An error occurred:", e)
     
 if option == "TEXT":
     text = st.text_input("Enter TEXT:")
