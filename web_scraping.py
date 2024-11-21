@@ -4,7 +4,8 @@ import requests
 class WebScraper:
     def __init__(self,url):
         self.url = url
-        
+    # url = str(input("Enter URL:"))
+    
     def extract_text(self):
         html = requests.get(self.url)
         soup = BeautifulSoup(html.content, 'html5lib')

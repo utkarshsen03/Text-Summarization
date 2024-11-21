@@ -1,15 +1,19 @@
 import pymupdf
 
-try:
-    doc = pymupdf.open("a.pdf")  # open a document
-    out = open("output.txt", "wb")  # create a text output
-    print("File opened successfully.")
+class Pdf2Text:
+    def __init__(self,pdf):
+        self.pdf = pdf
+        
+    def extract_text(self):
+        try:
+            doc = pymupdf.open(self.pdf)
+            text = ""
+            for page in doc:
+                text += str(page.get_text().encode("utf8"))
+        except Exception as e:
+            return ("An error occurred:", e)
+        return text
 
-    for page in doc:  # iterate the document pages
-        text = page.get_text().encode("utf8")  # get plain text (is in UTF-8)
-        out.write(text)  # write text of page
-        out.write(bytes((12,)))  # write page delimiter (form feed 0x0C)
-    out.close()
-    print("Text extraction complete.")
-except Exception as e:
-    print("An error occurred:", e)
+if __name__ == "__main__":
+    pdf2text = Pdf2Text('offer_letter.pdf')
+    print(type(pdf2text.extract_text()))
