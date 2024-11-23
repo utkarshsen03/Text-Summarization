@@ -1,16 +1,16 @@
 import re
 import nltk
-from io import StringIO
+import time
 import streamlit as st
 from web_scraping import WebScraper
 from spacy_summariser import TextSummarizer
-from pdf_text_extracter import Pdf2Text
+from pretrained_t5 import AbstractiveSummary
 from PyPDF2 import PdfReader
 
 nltk.download('punkt_tab')
 
 def extract_text_from_pdf(pdf_file):
-    reader = PdfReader(pdf_file)
+    reader = PdfReader(pdf_file)    
     text = ""
     for page in reader.pages:
         text += page.extract_text()
@@ -38,39 +38,71 @@ st.title("Text Summarization")
 with st.sidebar:
     st.title("Text Summarizer")
     st.markdown('---')
-    option = st.selectbox("**Select Summarization way:**",["URL","PDF","TEXT"])
+    source = st.selectbox("**Select Source of text:**",["URL","PDF","TYPING"])
+    method = st.selectbox("**Select Summarization Technique:**",["Extractive","Abstractive"])
     phrase = st.slider("Select phrase limit:",5,50,15)
     sentence = st.slider("Select sentence limit:",2,25,5)
 
-if option == "URL":
+if source == "URL":
     url = st.text_input("Enter URL:")
     if url != "":
-        scraper = WebScraper(url)
-        heading, content = scraper.extract_text()
-        summarizer = TextSummarizer(content,phrase,sentence)
-        summary = summarizer.summarize()
-        bullets = preprocess(summary)
-        st.title(heading)
-        st.write(bullets)
-    
-if option == "PDF":
+        try:
+            progress = st.status("Summarizing...")
+            scraper = WebScraper(url)
+            heading, content = scraper.extract_text()
+            if method == "Extractive":
+                summarizer = TextSummarizer(content,phrase,sentence)
+                summary = summarizer.summarize()
+            elif method == "Abstractive":
+                summarizer = AbstractiveSummary(content)
+                summary = summarizer.summarize()
+                
+            bullets = preprocess(summary)
+            st.title(heading)
+            st.write(bullets)
+            progress.update(state='complete')
+        except Exception as e:
+            progress.update(state='error')
+            st.write("An error occurred:", e)
+        
+elif source == "PDF":
     pdf = st.file_uploader("Drop File:")
     if pdf is not None:
         try:
+            progress = st.status("Summarizing...")
             content = extract_text_from_pdf(pdf)
             summarizer = TextSummarizer(content,phrase,sentence)
             summary = summarizer.summarize()
+            if method == "Extractive":
+                summarizer = TextSummarizer(content,phrase,sentence)
+                summary = summarizer.summarize()
+            elif method == "Abstractive":
+                summarizer = AbstractiveSummary(content)
+                summary = summarizer.summarize()
+                
             bullets = preprocess(summary)
             st.write(summary)
+            progress.update(state='complete')
         except Exception as e:
+            progress.update(state='error')
             st.write("An error occurred:", e)
-    
-if option == "TEXT":
+        
+elif source == "TYPING":
     text = st.text_input("Enter TEXT:")
     if text != "":
-        summarizer = TextSummarizer(text,phrase,sentence)
-        summary = summarizer.summarize()
-        st.write(summary)
+        try:
+            preogress  = st.status("Summarizing...")
+            if method == "Extractive":
+                summarizer = TextSummarizer(text,phrase,sentence)
+                summary = summarizer.summarize()
+            elif method == "Abstractive":
+                summarizer = AbstractiveSummary(text)
+                summary = summarizer.summarize()
+            summarizer = TextSummarizer(text,phrase,sentence)
+            summary = summarizer.summarize()
+            st.write(summary)
+            preogress.update(state='complete')
+        except Exception as e:
+            preogress.update(state='error')
+            st.write("An error occurred:", e)
         
-# extractive, abstractive = st.tabs(["Extractive","Abstractive"])
-
